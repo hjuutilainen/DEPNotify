@@ -327,9 +327,12 @@ class TrackProgress: NSObject {
                 case OtherLogs.munki :
                     if (line.contains("Installing") || line.contains("Downloading"))
                         && !line.contains(" at ") && !line.contains(" from ") {
-                        
+
                         do {
-                            let installerRegEx = try NSRegularExpression(pattern: "^.{0,27}")
+                            // Munki v7+ uses ISO 8601 timestamp: 2025-11-23 10:51:09.016+02:00
+                            // Earlier versions used shorter timestamps
+                            // Pattern matches: YYYY-MM-DD HH:MM:SS.mmm+TZ:TZ or older formats
+                            let installerRegEx = try NSRegularExpression(pattern: "^\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?([+-]\\d{2}:\\d{2})?\\s+")
                             let status = installerRegEx.stringByReplacingMatches(in: line,
                                                                                  options: NSRegularExpression.MatchingOptions.anchored,
                                                                                  range: NSMakeRange(0, line.count),
